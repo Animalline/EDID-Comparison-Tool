@@ -66,66 +66,71 @@ namespace EDID_Comparison_Tool_For_WPF
 
         private void leftTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            BiMap<TreeViewItem, TreeViewItem> biMap = VariablesUtils.VariablesUtils.biMap;
-            diffView.SetHeaderAsOldToNew();
-            if(biMap.Count() > 0)
+            if (TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
             {
-                TreeViewItem leftItem = e.NewValue as TreeViewItem;
-                TreeViewItem rightItem = biMap.Forward[leftItem];
 
-                diffView.OldText =
-                    ProcessText(
-                    RemoveLInesAsKeyword(RemoveLinesAfterKeyword(
-                        File.ReadAllText(leftItem.Tag + "")
-                        , "Start Tag")
-                    , "Reader EDID(Hex):"))
-                    .TrimEnd();
-
-                diffView.OldTextHeader = leftItem.Header + "";
-                if (rightItem != null)
+                BiMap<TreeViewItem, TreeViewItem> biMap = VariablesUtils.VariablesUtils.biMap;
+                if (biMap.Count() > 0)
                 {
-                    VariablesUtils.VariablesUtils.isFirstSelect ^= false;
-                    if (!VariablesUtils.VariablesUtils.isFirstSelect)
+                    TreeViewItem leftItem = e.NewValue as TreeViewItem;
+                    TreeViewItem rightItem = biMap.Forward[leftItem];
+
+                    diffView.OldText =
+                        ProcessText(
+                        RemoveLInesAsKeyword(RemoveLinesAfterKeyword(
+                            File.ReadAllText(leftItem.Tag + "")
+                            , "Start Tag")
+                        , "Reader EDID(Hex):"))
+                        .TrimEnd();
+
+                    diffView.OldTextHeader = leftItem.Header + "";
+                    if (rightItem != null)
                     {
-                        rightItem.IsSelected = true;
+                        VariablesUtils.VariablesUtils.isFirstSelect ^= false;
+                        if (!VariablesUtils.VariablesUtils.isFirstSelect)
+                        {
+                            rightItem.IsSelected = true;
+                        }
                     }
                 }
             }
         }
-
         private void rightTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            BiMap<TreeViewItem, TreeViewItem> biMap = VariablesUtils.VariablesUtils.biMap;
-            if(biMap.Count() > 0)
+            if(TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
             {
-                TreeViewItem rightItem = e.NewValue as TreeViewItem;
-                TreeViewItem leftItem = new TreeViewItem();
-                if (!Directory.Exists(rightItem.Tag + ""))
+                BiMap<TreeViewItem, TreeViewItem> biMap = VariablesUtils.VariablesUtils.biMap;
+                if (biMap.Count() > 0)
                 {
-                    TreeViewItem parentItem = rightItem.Parent as TreeViewItem;
-                    leftItem = biMap.Reverse[parentItem];
-                }
-                else
-                {
-                    leftItem = biMap.Reverse[rightItem];
-                }
-                string rightPath = rightItem.Tag + "";
-                if (rightPath != null && !Directory.Exists(rightPath))
-                {
-                    diffView.NewTextHeader = rightItem.Header + "";
-                    diffView.NewText = ProcessText(File.ReadAllText(rightPath)).TrimEnd();
-                }
-                else if (System.IO.Path.GetExtension(((rightItem.Items[0] as TreeViewItem).Header as string)).Equals(".dat"))
-                {
-                    diffView.NewTextHeader = rightItem.Header + "";
-                    diffView.NewText = ProcessText(File.ReadAllText(rightPath + "\\" + ((rightItem.Items[0] as TreeViewItem).Header as string))).TrimEnd();
-                }
-                if (leftItem != null)
-                {
-                    VariablesUtils.VariablesUtils.isFirstSelect ^= false;
-                    if (!VariablesUtils.VariablesUtils.isFirstSelect)
+                    TreeViewItem rightItem = e.NewValue as TreeViewItem;
+                    TreeViewItem leftItem = new TreeViewItem();
+                    if (!Directory.Exists(rightItem.Tag + ""))
                     {
-                        leftItem.IsSelected = true;
+                        TreeViewItem parentItem = rightItem.Parent as TreeViewItem;
+                        leftItem = biMap.Reverse[parentItem];
+                    }
+                    else
+                    {
+                        leftItem = biMap.Reverse[rightItem];
+                    }
+                    string rightPath = rightItem.Tag + "";
+                    if (rightPath != null && !Directory.Exists(rightPath))
+                    {
+                        diffView.NewTextHeader = rightItem.Header + "";
+                        diffView.NewText = ProcessText(File.ReadAllText(rightPath)).TrimEnd();
+                    }
+                    else if (System.IO.Path.GetExtension(((rightItem.Items[0] as TreeViewItem).Header as string)).Equals(".dat"))
+                    {
+                        diffView.NewTextHeader = rightItem.Header + "";
+                        diffView.NewText = ProcessText(File.ReadAllText(rightPath + "\\" + ((rightItem.Items[0] as TreeViewItem).Header as string))).TrimEnd();
+                    }
+                    if (leftItem != null)
+                    {
+                        VariablesUtils.VariablesUtils.isFirstSelect ^= false;
+                        if (!VariablesUtils.VariablesUtils.isFirstSelect)
+                        {
+                            leftItem.IsSelected = true;
+                        }
                     }
                 }
             }

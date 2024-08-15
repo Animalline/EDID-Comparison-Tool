@@ -94,7 +94,7 @@ namespace EDID_Comparison_Tool_For_WPF
             }
         }
         //获取层级
-        private static int GetTreeViewItemLevel(TreeViewItem item)
+        public static int GetTreeViewItemLevel(TreeViewItem item)
         {
             int level = 0;
             // 当找到根节点时，递增级别

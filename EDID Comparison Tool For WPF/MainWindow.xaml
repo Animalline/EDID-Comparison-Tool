@@ -32,6 +32,12 @@
                                    Width="100"
                                    Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/fileVs.png" Click="comparisonButton_Click" />
                 </Fluent:RibbonGroupBox>
+                <Fluent:RibbonGroupBox HorizontalContentAlignment="Right" HorizontalAlignment="Right" FlowDirection="RightToLeft">
+                    <Fluent:TwoLineLabel>
+                        
+                    </Fluent:TwoLineLabel>
+                    <Label Content="Label" Height="25" VerticalAlignment="Center"/>
+                </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
             <!--Backstage Items-->
             <Fluent:Ribbon.Menu>
@@ -57,7 +63,7 @@
                 Name="rightTree" 
                 Grid.Column="1" 
                 Width="Auto" SelectedItemChanged="rightTree_SelectedItemChanged" VerticalContentAlignment="Top"></TreeView>
-            <diffplex:DiffViewer x:Name="diffView" Grid.Column="2" Height="Auto" />
+            <diffplex:DiffViewer x:Name="diffView" Grid.Column="2" Height="Auto" DeletedForeground="Red" InsertedBackground="#40D82020" InsertedForeground="Red" SnapsToDevicePixels="True" />
         </Grid>
     </DockPanel>
 </Fluent:RibbonWindow>
