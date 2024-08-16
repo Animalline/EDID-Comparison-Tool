@@ -39,10 +39,13 @@ namespace EDID_Comparison_Tool_For_WPF
             if (path == null)
             {
                 System.Windows.Forms.MessageBox.Show("未选择兼容报告");
+                VariablesUtils.VariablesUtils.biMap = new BiMap<TreeViewItem, TreeViewItem>();
+                textblock.Text = "未选择兼容报告";
             }
             else
             {
                 leftTree = TreeUtils.AddTreeNode(leftTree, path,".txt");
+                textblock.Text = path;
             }
         }
 
@@ -51,22 +54,28 @@ namespace EDID_Comparison_Tool_For_WPF
             string path = FileUtils.selectFolder("选择原始文件");
             if (path == null)
             {
-                System.Windows.Forms.MessageBox.Show("选择原始文件");
+                System.Windows.Forms.MessageBox.Show("未选择原始文件");
+                VariablesUtils.VariablesUtils.biMap = new BiMap<TreeViewItem, TreeViewItem>();
+                textblock.Text = "未选择原始文件";
             }
             else
             {
                 rightTree = TreeUtils.AddTreeNode(rightTree, path, ".dat");
+                textblock.Text = path;
             }
         }
 
         private void comparisonButton_Click(object sender, RoutedEventArgs e)
         {
+           
             TreeUtils.TreeItemMatching(leftTree, rightTree);
+            
+            textblock.Text = "就绪";
         }
 
         private void leftTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
+            if (e.NewValue  != null  && TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
             {
 
                 BiMap<TreeViewItem, TreeViewItem> biMap = VariablesUtils.VariablesUtils.biMap;
@@ -74,7 +83,6 @@ namespace EDID_Comparison_Tool_For_WPF
                 {
                     TreeViewItem leftItem = e.NewValue as TreeViewItem;
                     TreeViewItem rightItem = biMap.Forward[leftItem];
-
                     diffView.OldText =
                         ProcessText(
                         RemoveLInesAsKeyword(RemoveLinesAfterKeyword(
@@ -84,7 +92,7 @@ namespace EDID_Comparison_Tool_For_WPF
                         .TrimEnd();
 
                     diffView.OldTextHeader = leftItem.Header + "";
-                    if (rightItem != null)
+                    if (rightItem != null )
                     {
                         VariablesUtils.VariablesUtils.isFirstSelect ^= false;
                         if (!VariablesUtils.VariablesUtils.isFirstSelect)
@@ -97,7 +105,7 @@ namespace EDID_Comparison_Tool_For_WPF
         }
         private void rightTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if(TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
+            if(e.NewValue != null && TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
             {
                 BiMap<TreeViewItem, TreeViewItem> biMap = VariablesUtils.VariablesUtils.biMap;
                 if (biMap.Count() > 0)
@@ -106,12 +114,26 @@ namespace EDID_Comparison_Tool_For_WPF
                     TreeViewItem leftItem = new TreeViewItem();
                     if (!Directory.Exists(rightItem.Tag + ""))
                     {
-                        TreeViewItem parentItem = rightItem.Parent as TreeViewItem;
-                        leftItem = biMap.Reverse[parentItem];
+                        if (biMap.Reverse.ContainsKey(rightItem))
+                        {
+                            TreeViewItem parentItem = rightItem.Parent as TreeViewItem;
+                            leftItem = biMap.Reverse[parentItem];
+                        }
+                        else
+                        {
+                            diffView.OldText = null;
+                        }
                     }
                     else
                     {
-                        leftItem = biMap.Reverse[rightItem];
+                        if (biMap.Reverse.ContainsKey(rightItem))
+                        {
+                            leftItem = biMap.Reverse[rightItem];
+                        }
+                        else
+                        {
+                            diffView.OldText = null;
+                        }
                     }
                     string rightPath = rightItem.Tag + "";
                     if (rightPath != null && !Directory.Exists(rightPath))

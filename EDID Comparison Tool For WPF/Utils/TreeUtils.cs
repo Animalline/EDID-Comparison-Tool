@@ -138,8 +138,9 @@ namespace EDID_Comparison_Tool_For_WPF
                 {
                     var ro = new RatcliffObershelp();
                     var left = leftTreeCollection[i] as TreeViewItem;
+                    string leftHeader = ((string)left.Header).Replace(Path.GetExtension((string)left.Header), "");
                     var right = rightTreeCollection[j] as TreeViewItem;
-                    similarityMatrix[i, j] = ro.Similarity(left.Header+"", right.Header+"");
+                    similarityMatrix[i, j] = ro.Similarity(leftHeader, right.Header+"");
                 }
             }
             //        贪心算法找到最佳匹配
@@ -151,7 +152,7 @@ namespace EDID_Comparison_Tool_For_WPF
 
                 for (int j = 0; j < rightTreeCollection.Count; j++)
                 {
-                    if (!usedInGroup2[j] && similarityMatrix[i, j] > maxSimilarity)
+                    if (!usedInGroup2[j] && similarityMatrix[i, j] > maxSimilarity && similarityMatrix[i,j] >= ConstantUtils.ConstantUtils.SimilarityValue)
                     {
                         maxSimilarity = similarityMatrix[i, j];
                         bestMatchIndex = j;
@@ -166,7 +167,7 @@ namespace EDID_Comparison_Tool_For_WPF
                 else
                 {
                     //                如果没有可匹配的项，值设为null
-                    results.Add(leftTreeCollection[i] as TreeViewItem, null);
+                    results.Add(leftTreeCollection[i] as TreeViewItem, new TreeViewItem());
                 }
             }
 

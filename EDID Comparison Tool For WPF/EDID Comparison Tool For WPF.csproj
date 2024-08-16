@@ -284,7 +284,6 @@
     </ApplicationDefinition>
     <Compile Include="Utils\ConstantUtils.cs" />
     <Compile Include="Utils\FileUtils.cs" />
-    <Compile Include="Utils\MatchingUtils.cs" />
     <Compile Include="Utils\TreeUtils.cs" />
     <Compile Include="Utils\VariablesUtils.cs" />
     <Page Include="MainWindow.xaml">

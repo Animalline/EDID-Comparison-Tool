@@ -1,69 +1,81 @@
-﻿<Fluent:RibbonWindow x:Class="EDID_Comparison_Tool_For_WPF.MainWindow"
+﻿<Fluent:RibbonWindow
                      xmlns:v="clr-namespace:EDID_Comparison_Tool_For_WPF.ConstantUtils"
                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:Fluent="urn:fluent-ribbon"
                      xmlns:diffplex="clr-namespace:DiffPlex.Wpf.Controls;assembly=DiffPlex.Wpf"
+                     xmlns:controlzex="urn:controlzex" x:Class="EDID_Comparison_Tool_For_WPF.MainWindow"
                      Title="{x:Static v:ConstantUtils.AppName}" 
                      Width="800" 
                      Height="600">
     <DockPanel>
-        <Fluent:Ribbon DockPanel.Dock="Top">
+        <Fluent:Ribbon DockPanel.Dock="Top" VerticalContentAlignment="Stretch" HorizontalContentAlignment="Right">
             <!--Add QuickAccess-->
             <Fluent:Ribbon.QuickAccessItems>
                 <Fluent:QuickAccessMenuItem Target="{Binding ElementName=leftButton}"/>
                 <Fluent:QuickAccessMenuItem Target="{Binding ElementName=rightButton}"/>
             </Fluent:Ribbon.QuickAccessItems>
-            <!--Add Tabs-->
-            <Fluent:RibbonTabItem Header="Home" ReduceOrder="(P),(P),(P),(P),(P)">
-                <Fluent:RibbonGroupBox Header="Select Folders">
-                    <Fluent:Button Header="选择兼容报告"
-                                   Name="leftButton"
-                                   Width="100"
-                                   Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/blue_folder.png" Click="leftButton_Click" />
-                    <Fluent:Button Header="选择原始文件" 
-                                   Name="rightButton"
-                                   Width="100"
-                                   Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/red_folder.png" Click="rightButton_Click" />
-                </Fluent:RibbonGroupBox>
-                <Fluent:RibbonGroupBox Header="Comparison">
-                    <Fluent:Button Header="比较文件" 
-                                   Name="comparisonButton"
-                                   Width="100"
-                                   Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/fileVs.png" Click="comparisonButton_Click" />
-                </Fluent:RibbonGroupBox>
-                <Fluent:RibbonGroupBox HorizontalContentAlignment="Right" HorizontalAlignment="Right" FlowDirection="RightToLeft">
-                    <Fluent:TwoLineLabel>
-                        
-                    </Fluent:TwoLineLabel>
-                    <Label Content="Label" Height="25" VerticalAlignment="Center"/>
-                </Fluent:RibbonGroupBox>
-            </Fluent:RibbonTabItem>
             <!--Backstage Items-->
             <Fluent:Ribbon.Menu>
-                <Fluent:Backstage Background="Gray">
+                <Fluent:Backstage Background="Gray" Header="选项">
                     <Fluent:BackstageTabControl>
                         <Fluent:Button Header="退出系统" Command="{Binding ExitSystemCommand}" Icon="images\blue_folder.png"/>
                     </Fluent:BackstageTabControl>
                 </Fluent:Backstage>
             </Fluent:Ribbon.Menu>
 
+            <!--Add Tabs-->
+            <Fluent:RibbonTabItem Header="首页" ReduceOrder="(P),(P),(P),(P),(P)">
+                <Fluent:RibbonGroupBox Header="Select Folders">
+                    <Fluent:Button Header="选择兼容报告"
+                                   x:Name="leftButton"
+                                   Width="100"
+                                   Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/blue_folder.png" Click="leftButton_Click" />
+                    <Fluent:Button Header="选择原始文件" 
+                                   x:Name="rightButton"
+                                   Width="100"
+                                   Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/red_folder.png" Click="rightButton_Click" />
+                </Fluent:RibbonGroupBox>
+                <Fluent:RibbonGroupBox Header="Comparison">
+                    <Fluent:Button Header="比较文件" 
+                                   x:Name="comparisonButton"
+                                   Width="100"
+                                   Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/fileVs.png" Click="comparisonButton_Click" />
+                </Fluent:RibbonGroupBox>
+            </Fluent:RibbonTabItem>
+            <Fluent:RibbonTabItem/>
+
         </Fluent:Ribbon>
         <Grid Width="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  DockPanel.Dock="Left">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="23"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="15*"/>
                 <ColumnDefinition Width="15*"/>
                 <ColumnDefinition Width="70*"/>
             </Grid.ColumnDefinitions>
+
             <TreeView 
-                Name="leftTree"
+                x:Name="leftTree"
+                Grid.Row="0"
                 Grid.Column="0" 
-                Width="Auto" SelectedItemChanged="leftTree_SelectedItemChanged"></TreeView>
+                Width="Auto" SelectedItemChanged="leftTree_SelectedItemChanged"/>
             <TreeView 
-                Name="rightTree" 
+                x:Name="rightTree" 
+                Grid.Row="0"
                 Grid.Column="1" 
-                Width="Auto" SelectedItemChanged="rightTree_SelectedItemChanged" VerticalContentAlignment="Top"></TreeView>
+                Width="Auto" SelectedItemChanged="rightTree_SelectedItemChanged" VerticalContentAlignment="Top"/>
             <diffplex:DiffViewer x:Name="diffView" Grid.Column="2" Height="Auto" DeletedForeground="Red" InsertedBackground="#40D82020" InsertedForeground="Red" SnapsToDevicePixels="True" />
+            <Fluent:StatusBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+                <Fluent:StatusBarItem Title="Words Width"
+                          Value="150"
+                          HorizontalAlignment="Left">
+                    <TextBlock x:Name="textblock" Margin="10,0,0,0" Text="Message" />
+                </Fluent:StatusBarItem>
+            </Fluent:StatusBar>
         </Grid>
+
     </DockPanel>
 </Fluent:RibbonWindow>
