@@ -20,6 +20,9 @@ using DiffPlex.Model;
 using DiffPlex;
 using Fluent;
 using BidirectionalMap;
+using Avalonia.Media.Imaging;
+using static System.Net.Mime.MediaTypeNames;
+using System.Collections.ObjectModel;
 
 namespace EDID_Comparison_Tool_For_WPF
 {
@@ -67,9 +70,20 @@ namespace EDID_Comparison_Tool_For_WPF
 
         private void comparisonButton_Click(object sender, RoutedEventArgs e)
         {
-           
+           if(leftTree.Items.Count <= 0)
+            {
+                System.Windows.Forms.MessageBox.Show("未选择兼容报告");
+                return;
+            }
+           if(rightTree.Items.Count <= 0)
+            {
+                System.Windows.Forms.MessageBox.Show("未选择原始文件");
+                return;
+            }
             TreeUtils.TreeItemMatching(leftTree, rightTree);
-            
+            transFolderNameColor();
+
+
             textblock.Text = "就绪";
         }
 
@@ -235,6 +249,133 @@ namespace EDID_Comparison_Tool_For_WPF
             }
 
             return stringBuilder.ToString();
+        }
+        public void transFolderNameColor()
+        {
+            Collection<TreeViewItem> collection = new Collection<TreeViewItem>();
+            //取所有二级
+            ItemCollection items1 = TreeUtils.getItem(leftTree);
+            if (items1?.Count >0)
+            {
+                foreach (TreeViewItem item in items1)
+                {
+                    collection.Add(item);
+                }
+            }
+            ItemCollection items2 = TreeUtils.getItem(rightTree);
+            if (items2?.Count > 0)
+            {
+                foreach (TreeViewItem item in items2)
+                {
+                    collection.Add(item);
+                }
+            }
+            if (collection?.Count <= 0)
+            {
+                return;
+            }
+            foreach (object item1 in collection)
+            {
+                TreeViewItem item = item1 as TreeViewItem;
+                if(item != null)
+                {
+                    //如果在双向绑定集合中出现，说明有匹配项
+                    if (VariablesUtils.VariablesUtils.biMap.Forward.ContainsKey(item))
+                    {
+                        TreeViewItem rightItem = VariablesUtils.VariablesUtils.biMap.Forward[item];
+                        string leftText = ProcessText(
+                        RemoveLInesAsKeyword(RemoveLinesAfterKeyword(
+                            File.ReadAllText(item.Tag + "")
+                            , "Start Tag")
+                        , "Reader EDID(Hex):"))
+                        .TrimEnd();
+                        string rightText = "";
+                        if (rightItem != null)
+                        {
+                            string rightPath = rightItem.Tag + "";
+                            if (rightPath != null && !Directory.Exists(rightPath))
+                            {
+                                rightText = ProcessText(File.ReadAllText(rightPath)).TrimEnd();
+                            }
+                            else if (System.IO.Path.GetExtension(((rightItem.Items[0] as TreeViewItem).Header as string)).Equals(".dat"))
+                            {
+                                rightText = ProcessText(File.ReadAllText(rightPath + "\\" + ((rightItem.Items[0] as TreeViewItem).Header as string))).TrimEnd();
+                            }
+                            int leftLines = CountLines(leftText);
+                            int rightLines = CountLines(rightText);
+                            if (leftLines != rightLines) {
+                                item.Background = Brushes.LightBlue;
+                                rightItem.Background = Brushes.LightBlue;
+                                collection.Remove(item);
+                                collection.Remove(rightItem);
+                                break;
+                            }
+                            Differ differ = new Differ();
+                            DiffResult diffresult = differ.CreateCharacterDiffs(leftText, rightText,true);
+                            if(diffresult?.DiffBlocks?.Count > 0)
+                            {
+                                item.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32)); ;
+                                rightItem.Background = new SolidColorBrush(Color.FromArgb(64,216, 32, 32)); ;
+                            }
+                        }
+                    }
+                    else if (VariablesUtils.VariablesUtils.biMap.Reverse.ContainsKey(item))
+                    {
+                        TreeViewItem leftItem = VariablesUtils.VariablesUtils.biMap.Reverse[item];
+                        string rightText = ProcessText(
+                            File.ReadAllText(item.Tag + ""))
+                        .TrimEnd();
+                        string leftText = "";
+                        if (leftItem != null)
+                        {
+                            string leftPath = leftItem.Tag + "";
+                            if (leftPath != null && !Directory.Exists(leftPath))
+                            {
+                                leftText = ProcessText(
+                        RemoveLInesAsKeyword(RemoveLinesAfterKeyword(
+                            File.ReadAllText(item.Tag + "")
+                            , "Start Tag")
+                        , "Reader EDID(Hex):"))
+                        .TrimEnd();
+                            }
+                            int leftLines = CountLines(leftText);
+                            int rightLines = CountLines(rightText);
+                            if (leftLines != rightLines)
+                            {
+                                item.Background = Brushes.LightBlue;
+                                leftItem.Background = Brushes.LightBlue;
+                                collection.Remove(item);
+                                collection.Remove(leftItem);
+                                break;
+                            }
+                            Differ differ = new Differ();
+                            DiffResult diffresult = differ.CreateCharacterDiffs(leftText, rightText, true);
+                            if (diffresult?.DiffBlocks?.Count > 0)
+                            {
+                                item.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32)); ;
+                                leftItem.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32)); ;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        item.Background = Brushes.LightYellow;
+                        collection.Remove(item);
+                    }
+                }
+            }
+        }
+        static int CountLines(string text)
+        {
+            // 如果字符串为空或为 null，返回 0
+            if (string.IsNullOrEmpty(text))
+                return 0;
+
+            // 使用 '\r' 和 '\n' 作为分隔符，去除空行
+            string[] lines = text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+            // 返回行数
+            return lines.Length;
         }
     }
 }

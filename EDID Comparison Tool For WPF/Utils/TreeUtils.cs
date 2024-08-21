@@ -97,7 +97,7 @@ namespace EDID_Comparison_Tool_For_WPF
         public static int GetTreeViewItemLevel(TreeViewItem item)
         {
             int level = 0;
-            // 当找到根节点时，递增级别
+            //当找到根节点时，递增级别
             while (item.Parent is TreeViewItem parent)
             {
                 level++;
@@ -105,16 +105,16 @@ namespace EDID_Comparison_Tool_For_WPF
             }
             return level;
         }
-        //    获取rootNode下的二级目录
-        private static ItemCollection getItem(TreeView treeView)
+        //获取rootNode下的二级目录
+        public static ItemCollection getItem(TreeView treeView)
         {
             var rootItem = treeView.Items[0] as TreeViewItem;
             return rootItem.Items;
         }
-        //    将左右树的二级目录匹配
+        //将左右树的二级目录匹配
         public static void TreeItemMatching(TreeView leftTree, TreeView rightTree)
         {
-            //        获取左右树collection
+            //获取左右树collection
             var leftTreeCollectionn = getItem(leftTree);
             var rightTreeCollection = getItem(rightTree);
             VariablesUtils.VariablesUtils.biMap = GetBestMatches(leftTreeCollectionn, rightTreeCollection);
@@ -143,7 +143,7 @@ namespace EDID_Comparison_Tool_For_WPF
                     similarityMatrix[i, j] = ro.Similarity(leftHeader, right.Header+"");
                 }
             }
-            //        贪心算法找到最佳匹配
+            //贪心算法找到最佳匹配
             var usedInGroup2 = new bool[rightTreeCollection.Count];
             for (int i = 0; i < leftTreeCollection.Count; i++)
             {
@@ -166,7 +166,7 @@ namespace EDID_Comparison_Tool_For_WPF
                 }
                 else
                 {
-                    //                如果没有可匹配的项，值设为null
+                    //如果没有可匹配的项，值设为null
                     results.Add(leftTreeCollection[i] as TreeViewItem, new TreeViewItem());
                 }
             }

@@ -58,15 +58,37 @@
             </Grid.ColumnDefinitions>
 
             <TreeView 
-                x:Name="leftTree"
+                x:Name="leftTree" 
                 Grid.Row="0"
                 Grid.Column="0" 
-                Width="Auto" SelectedItemChanged="leftTree_SelectedItemChanged"/>
+                Width="Auto" SelectedItemChanged="leftTree_SelectedItemChanged">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Style.Resources>
+                            <!-- 设置选中且无焦点时的背景颜色 -->
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#0078D7"/>
+                            <!-- 设置选中且无焦点时的文本颜色 -->
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White"/>
+                        </Style.Resources>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+            </TreeView>
             <TreeView 
                 x:Name="rightTree" 
                 Grid.Row="0"
                 Grid.Column="1" 
-                Width="Auto" SelectedItemChanged="rightTree_SelectedItemChanged" VerticalContentAlignment="Top"/>
+                Width="Auto" SelectedItemChanged="rightTree_SelectedItemChanged">
+                <TreeView.ItemContainerStyle>
+                    <Style TargetType="{x:Type TreeViewItem}">
+                        <Style.Resources>
+                            <!-- 设置选中且无焦点时的背景颜色 -->
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="#0078D7"/>
+                            <!-- 设置选中且无焦点时的文本颜色 -->
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightTextBrushKey}" Color="White"/>
+                        </Style.Resources>
+                    </Style>
+                </TreeView.ItemContainerStyle>
+            </TreeView>
             <diffplex:DiffViewer x:Name="diffView" Grid.Column="2" Height="Auto" DeletedForeground="Red" InsertedBackground="#40D82020" InsertedForeground="Red" SnapsToDevicePixels="True" />
             <Fluent:StatusBar Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
                 <Fluent:StatusBarItem Title="Words Width"

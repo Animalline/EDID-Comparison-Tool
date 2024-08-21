@@ -16,7 +16,7 @@ namespace EDID_Comparison_Tool_For_WPF
         {
             using (var dialog = new FolderBrowserDialog())
             {
-                dialog.Description = "description";
+                dialog.Description = description;
                 dialog.ShowNewFolderButton = true;
 
                 if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
