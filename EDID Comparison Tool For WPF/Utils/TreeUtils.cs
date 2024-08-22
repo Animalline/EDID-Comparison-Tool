@@ -9,6 +9,8 @@ using System.Windows.Controls;
 using F23.StringSimilarity;
 using Avalonia.Media.Imaging;
 using EDID_Comparison_Tool_For_WPF.VariablesUtils;
+using System.Collections.ObjectModel;
+using System.Windows.Documents;
 
 namespace EDID_Comparison_Tool_For_WPF
 {
@@ -118,12 +120,12 @@ namespace EDID_Comparison_Tool_For_WPF
             var leftTreeCollectionn = getItem(leftTree);
             var rightTreeCollection = getItem(rightTree);
             VariablesUtils.VariablesUtils.biMap = GetBestMatches(leftTreeCollectionn, rightTreeCollection);
-            foreach (TreeViewItem leftItem in leftTreeCollectionn)
-            {
-                string leftPath = leftItem.Tag + "\\" + leftItem.Header;
-                TreeViewItem rightItem = VariablesUtils.VariablesUtils.biMap.Forward[leftItem];
-                string rightPath = rightItem.Tag + "\\" + rightItem.Header;
-            }
+            //foreach (TreeViewItem leftItem in leftTreeCollectionn)
+            //{
+            //    string leftPath = leftItem.Tag + "\\" + leftItem.Header;
+            //    TreeViewItem rightItem = VariablesUtils.VariablesUtils.biMap.Forward[leftItem];
+            //    string rightPath = rightItem.Tag + "\\" + rightItem.Header;
+            //}
 
         }
         //匹配最优项
@@ -164,14 +166,70 @@ namespace EDID_Comparison_Tool_For_WPF
                     results.Add(leftTreeCollection[i] as TreeViewItem, rightTreeCollection[bestMatchIndex] as TreeViewItem);
                     usedInGroup2[bestMatchIndex] = true;
                 }
-                else
-                {
-                    //如果没有可匹配的项，值设为null
-                    results.Add(leftTreeCollection[i] as TreeViewItem, new TreeViewItem());
-                }
+                //else
+                //{
+                //    //如果没有可匹配的项，值设为null
+                //    results.Add(leftTreeCollection[i] as TreeViewItem, new TreeViewItem());
+                //}
             }
 
             return results;
+
+        }
+        public static void compareTree(TreeView leftTree, TreeView rightTree)
+        {
+            //取所有二级
+            ItemCollection items1 = TreeUtils.getItem(leftTree);
+            IList<TreeViewItem> leftList = new List<TreeViewItem>();
+            for (int i = 0; i < items1.Count; i++)
+            {
+                leftList.Add(items1[i] as TreeViewItem);
+            }
+            ItemCollection items2 = TreeUtils.getItem(rightTree);
+            IList<TreeViewItem> rightList = new List<TreeViewItem>();
+            for (int i = 0; i < items2.Count; i++)
+            {
+                rightList.Add(items2[i] as TreeViewItem);
+            }
+            ((TreeViewItem)leftTree.Items[0]).Items.Clear();
+            ((TreeViewItem)rightTree.Items[0]).Items.Clear();
+
+            
+            if (leftList.Count >= rightList.Count)
+            {
+
+                leftList = leftList.OrderBy(viewitem => viewitem.Header.ToString()).ToList();
+                for (int i = 0; i < leftList.Count; i++)
+                {
+                    TreeViewItem leftItem = leftList[i];
+                    ((TreeViewItem)leftTree.Items[0]).Items.Add(leftItem);
+                    if (VariablesUtils.VariablesUtils.biMap.Forward.ContainsKey(leftItem))
+                    {
+                        TreeViewItem rightItem = VariablesUtils.VariablesUtils.biMap.Forward[leftItem];
+                        if(rightItem != null && rightItem.Header != null && !rightItem.Equals("")){
+                            ((TreeViewItem)rightTree.Items[0]).Items.Add(rightItem);
+                        }
+                    }
+                }
+            }
+            else
+            {
+
+                rightList = rightList.OrderBy(viewitem => viewitem.Header.ToString()).ToList();
+                for (int i = 0; i < rightList.Count; i++)
+                {
+                    TreeViewItem rightItem = rightList[i];
+                    ((TreeViewItem)rightTree.Items[0]).Items.Add(rightItem);
+                    if (VariablesUtils.VariablesUtils.biMap.Reverse.ContainsKey(rightItem))
+                    {
+                        TreeViewItem leftItem = VariablesUtils.VariablesUtils.biMap.Reverse[rightItem];
+                        if (leftItem != null && leftItem.Header != null && !leftItem.Equals(""))
+                        {
+                            ((TreeViewItem)leftTree.Items[0]).Items.Add(leftItem);
+                        }
+                    }
+                }
+            }
 
         }
     }

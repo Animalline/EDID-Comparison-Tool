@@ -97,7 +97,26 @@ namespace EDID_Comparison_Tool_For_WPF
                 if (biMap.Count() > 0)
                 {
                     TreeViewItem leftItem = e.NewValue as TreeViewItem;
-                    TreeViewItem rightItem = biMap.Forward[leftItem];
+                    //TreeViewItem rightItem = biMap.Forward[leftItem];
+                    TreeViewItem rightItem = new TreeViewItem();
+                    if (biMap.Forward.ContainsKey(leftItem))
+                    {
+                        diffView.DeletedBackground = new SolidColorBrush(Color.FromArgb(64,216,32,32));
+                        diffView.DeletedForeground = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
+                        rightItem = biMap.Forward[leftItem];
+                    }
+                    else
+                    {
+                        diffView.NewText = "";
+                        diffView.NewTextHeader = null;
+                        diffView.DeletedBackground = Brushes.White;
+                        diffView.DeletedForeground = Brushes.Black;
+                        TreeViewItem rightSelectedItem = ((TreeViewItem)rightTree.SelectedItem);
+                        if (rightSelectedItem != null)
+                        {
+                            rightSelectedItem.IsSelected = false;
+                        }
+                    }
                     diffView.OldText =
                         ProcessText(
                         RemoveLInesAsKeyword(RemoveLinesAfterKeyword(
@@ -129,25 +148,45 @@ namespace EDID_Comparison_Tool_For_WPF
                     TreeViewItem leftItem = new TreeViewItem();
                     if (!Directory.Exists(rightItem.Tag + ""))
                     {
-                        if (biMap.Reverse.ContainsKey(rightItem))
+                        TreeViewItem parentItem = rightItem.Parent as TreeViewItem;
+                        if (biMap.Reverse.ContainsKey(parentItem))
                         {
-                            TreeViewItem parentItem = rightItem.Parent as TreeViewItem;
+                            diffView.InsertedBackground = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32));
+                            diffView.InsertedForeground = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
                             leftItem = biMap.Reverse[parentItem];
                         }
                         else
                         {
-                            diffView.OldText = null;
+                            diffView.OldText = "";
+                            diffView.OldTextHeader = null;
+                            diffView.InsertedBackground = Brushes.White;
+                            diffView.InsertedForeground = Brushes.Black;
+                            TreeViewItem leftSelectedItem = ((TreeViewItem)leftTree.SelectedItem);
+                            if (leftSelectedItem != null)
+                            {
+                                leftSelectedItem.IsSelected = false;
+                            }
                         }
                     }
                     else
                     {
                         if (biMap.Reverse.ContainsKey(rightItem))
                         {
+                            diffView.InsertedBackground = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32));
+                            diffView.InsertedForeground = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
                             leftItem = biMap.Reverse[rightItem];
                         }
                         else
                         {
-                            diffView.OldText = null;
+                            diffView.OldText = "";
+                            diffView.OldTextHeader = null;
+                            diffView.InsertedBackground = Brushes.White;
+                            diffView.InsertedForeground = Brushes.Black;
+                            TreeViewItem leftSelectedItem = ((TreeViewItem)leftTree.SelectedItem);
+                            if (leftSelectedItem != null)
+                            {
+                                leftSelectedItem.IsSelected = false;
+                            }
                         }
                     }
                     string rightPath = rightItem.Tag + "";
@@ -256,6 +295,9 @@ namespace EDID_Comparison_Tool_For_WPF
             Collection<TreeViewItem> collection = new Collection<TreeViewItem>();
             //取所有二级
             ItemCollection items1 = TreeUtils.getItem(leftTree);
+
+            ItemCollection items2 = TreeUtils.getItem(rightTree);
+
             if (items1?.Count >0)
             {
                 foreach (TreeViewItem item in items1)
@@ -263,7 +305,6 @@ namespace EDID_Comparison_Tool_For_WPF
                     collection.Add(item);
                 }
             }
-            ItemCollection items2 = TreeUtils.getItem(rightTree);
             if (items2?.Count > 0)
             {
                 foreach (TreeViewItem item in items2)
@@ -271,6 +312,7 @@ namespace EDID_Comparison_Tool_For_WPF
                     collection.Add(item);
                 }
             }
+            TreeUtils.compareTree(leftTree, rightTree);
             if (collection?.Count <= 0)
             {
                 return;
@@ -310,7 +352,8 @@ namespace EDID_Comparison_Tool_For_WPF
                                 rightItem.Background = Brushes.LightBlue;
                                 collection.Remove(item);
                                 collection.Remove(rightItem);
-                                break;
+                                i--;
+                                continue;
                             }
                             Differ differ = new Differ();
                             DiffResult diffresult = differ.CreateCharacterDiffs(leftText, rightText,true);
@@ -320,6 +363,7 @@ namespace EDID_Comparison_Tool_For_WPF
                                 rightItem.Background = new SolidColorBrush(Color.FromArgb(64,216, 32, 32)); 
                                 collection.Remove(item);
                                 collection.Remove(rightItem);
+                                i--;
                             }
                         }
                     }
@@ -352,11 +396,12 @@ namespace EDID_Comparison_Tool_For_WPF
                             int rightLines = CountLines(rightText);
                             if (leftLines != rightLines)
                             {
-                                item.Background = Brushes.LightBlue;
+                                leftItem.Background = Brushes.LightBlue;
                                 item.Background = Brushes.LightBlue;
                                 collection.Remove(leftItem);
                                 collection.Remove(item);
-                                break;
+                                i--;
+                                continue;
                             }
                             Differ differ = new Differ();
                             DiffResult diffresult = differ.CreateCharacterDiffs(leftText, rightText, true);
@@ -366,6 +411,7 @@ namespace EDID_Comparison_Tool_For_WPF
                                 item.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32));
                                 collection.Remove(leftItem);
                                 collection.Remove(item);
+                                i--;
                             }
                         }
                     }
