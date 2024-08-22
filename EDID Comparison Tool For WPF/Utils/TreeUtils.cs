@@ -1,26 +1,19 @@
 ﻿using BidirectionalMap;
-using System;
+using F23.StringSimilarity;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
-using F23.StringSimilarity;
-using Avalonia.Media.Imaging;
-using EDID_Comparison_Tool_For_WPF.VariablesUtils;
-using System.Collections.ObjectModel;
-using System.Windows.Documents;
 
 namespace EDID_Comparison_Tool_For_WPF
 {
     public class TreeUtils
     {
         //添加节点
-        public static TreeView AddTreeNode(TreeView treeView,string path,string showSuffix)
+        public static TreeView AddTreeNode(TreeView treeView, string path, string showSuffix)
         {
-            
-            if(path != null)
+
+            if (path != null)
             {
                 //添加前先清空节点
                 treeView.Items.Clear();
@@ -33,7 +26,7 @@ namespace EDID_Comparison_Tool_For_WPF
                 //获取上级目录地址
                 DirectoryInfo parentDirectory = Directory.GetParent(path);
                 //保存绝对路径
-                rootItem.Tag = parentDirectory.FullName+"\\"+rootItem.Header;
+                rootItem.Tag = parentDirectory.FullName + "\\" + rootItem.Header;
                 //加入到树中
                 treeView.Items.Add(rootItem);
                 //迭代添加节点
@@ -56,14 +49,14 @@ namespace EDID_Comparison_Tool_For_WPF
                 //赋值显示名称
                 subItem.Header = new DirectoryInfo(dic).Name;
                 //保存路径
-                subItem.Tag = root.Tag+"\\"+subItem.Header;
+                subItem.Tag = root.Tag + "\\" + subItem.Header;
                 //获取文件后缀
                 var suffix = Path.GetExtension(dic);
                 //设置icon
                 switch (suffix)
                 {
                     case ".dat":
-                        
+
                         break;
                     case ".txt":
 
@@ -142,7 +135,7 @@ namespace EDID_Comparison_Tool_For_WPF
                     var left = leftTreeCollection[i] as TreeViewItem;
                     string leftHeader = ((string)left.Header).Replace(Path.GetExtension((string)left.Header), "");
                     var right = rightTreeCollection[j] as TreeViewItem;
-                    similarityMatrix[i, j] = ro.Similarity(leftHeader, right.Header+"");
+                    similarityMatrix[i, j] = ro.Similarity(leftHeader, right.Header + "");
                 }
             }
             //贪心算法找到最佳匹配
@@ -154,7 +147,7 @@ namespace EDID_Comparison_Tool_For_WPF
 
                 for (int j = 0; j < rightTreeCollection.Count; j++)
                 {
-                    if (!usedInGroup2[j] && similarityMatrix[i, j] > maxSimilarity && similarityMatrix[i,j] >= ConstantUtils.ConstantUtils.SimilarityValue)
+                    if (!usedInGroup2[j] && similarityMatrix[i, j] > maxSimilarity && similarityMatrix[i, j] >= ConstantUtils.ConstantUtils.SimilarityValue)
                     {
                         maxSimilarity = similarityMatrix[i, j];
                         bestMatchIndex = j;
@@ -194,7 +187,7 @@ namespace EDID_Comparison_Tool_For_WPF
             ((TreeViewItem)leftTree.Items[0]).Items.Clear();
             ((TreeViewItem)rightTree.Items[0]).Items.Clear();
 
-            
+
             if (leftList.Count >= rightList.Count)
             {
 
@@ -206,7 +199,8 @@ namespace EDID_Comparison_Tool_For_WPF
                     if (VariablesUtils.VariablesUtils.biMap.Forward.ContainsKey(leftItem))
                     {
                         TreeViewItem rightItem = VariablesUtils.VariablesUtils.biMap.Forward[leftItem];
-                        if(rightItem != null && rightItem.Header != null && !rightItem.Equals("")){
+                        if (rightItem != null && rightItem.Header != null && !rightItem.Equals(""))
+                        {
                             ((TreeViewItem)rightTree.Items[0]).Items.Add(rightItem);
                         }
                     }

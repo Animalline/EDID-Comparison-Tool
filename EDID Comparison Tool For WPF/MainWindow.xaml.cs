@@ -1,42 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.UI.WebControls;
-using System.Windows;
-using System.Windows.Forms;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using DiffPlex.DiffBuilder.Model;
-using DiffPlex.Model;
+﻿using BidirectionalMap;
 using DiffPlex;
-using Fluent;
-using BidirectionalMap;
-using Avalonia.Media.Imaging;
-using static System.Net.Mime.MediaTypeNames;
+using DiffPlex.Model;
+using System;
 using System.Collections.ObjectModel;
-using System.Collections;
+using System.IO;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace EDID_Comparison_Tool_For_WPF
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow 
+    public partial class MainWindow
     {
         public MainWindow()
         {
             this.InitializeComponent();
         }
-        
+
         private void leftButton_Click(object sender, RoutedEventArgs e)
         {
             string path = FileUtils.selectFolder("选择兼容报告");
@@ -48,7 +32,7 @@ namespace EDID_Comparison_Tool_For_WPF
             }
             else
             {
-                leftTree = TreeUtils.AddTreeNode(leftTree, path,".txt");
+                leftTree = TreeUtils.AddTreeNode(leftTree, path, ".txt");
                 textblock.Text = path;
             }
         }
@@ -71,12 +55,12 @@ namespace EDID_Comparison_Tool_For_WPF
 
         private void comparisonButton_Click(object sender, RoutedEventArgs e)
         {
-           if(leftTree.Items.Count <= 0)
+            if (leftTree.Items.Count <= 0)
             {
                 System.Windows.Forms.MessageBox.Show("未选择兼容报告");
                 return;
             }
-           if(rightTree.Items.Count <= 0)
+            if (rightTree.Items.Count <= 0)
             {
                 System.Windows.Forms.MessageBox.Show("未选择原始文件");
                 return;
@@ -90,7 +74,7 @@ namespace EDID_Comparison_Tool_For_WPF
 
         private void leftTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if (e.NewValue  != null  && TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
+            if (e.NewValue != null && TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
             {
 
                 BiMap<TreeViewItem, TreeViewItem> biMap = VariablesUtils.VariablesUtils.biMap;
@@ -101,7 +85,7 @@ namespace EDID_Comparison_Tool_For_WPF
                     TreeViewItem rightItem = new TreeViewItem();
                     if (biMap.Forward.ContainsKey(leftItem))
                     {
-                        diffView.DeletedBackground = new SolidColorBrush(Color.FromArgb(64,216,32,32));
+                        diffView.DeletedBackground = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32));
                         diffView.DeletedForeground = new SolidColorBrush(Color.FromArgb(255, 255, 0, 0));
                         rightItem = biMap.Forward[leftItem];
                     }
@@ -126,7 +110,7 @@ namespace EDID_Comparison_Tool_For_WPF
                         .TrimEnd();
 
                     diffView.OldTextHeader = leftItem.Header + "";
-                    if (rightItem != null )
+                    if (rightItem != null)
                     {
                         VariablesUtils.VariablesUtils.isFirstSelect ^= false;
                         if (!VariablesUtils.VariablesUtils.isFirstSelect)
@@ -139,7 +123,7 @@ namespace EDID_Comparison_Tool_For_WPF
         }
         private void rightTree_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            if(e.NewValue != null && TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
+            if (e.NewValue != null && TreeUtils.GetTreeViewItemLevel(e.NewValue as TreeViewItem) > 0)
             {
                 BiMap<TreeViewItem, TreeViewItem> biMap = VariablesUtils.VariablesUtils.biMap;
                 if (biMap.Count() > 0)
@@ -227,7 +211,7 @@ namespace EDID_Comparison_Tool_For_WPF
                 stringBuilder.AppendLine(currentLine);
 
                 // 每隔一行插入一行
-                if (i < lines.Length-1 )
+                if (i < lines.Length - 1)
                 {
                     stringBuilder.AppendLine(); // 插入空行
                 }
@@ -270,7 +254,8 @@ namespace EDID_Comparison_Tool_For_WPF
 
             return stringBuilder.ToString();
         }
-        static string RemoveLInesAsKeyword(string input, string keyword) {
+        static string RemoveLInesAsKeyword(string input, string keyword)
+        {
             // 将输入文本按行分割
             var lines = input.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
 
@@ -298,7 +283,7 @@ namespace EDID_Comparison_Tool_For_WPF
 
             ItemCollection items2 = TreeUtils.getItem(rightTree);
 
-            if (items1?.Count >0)
+            if (items1?.Count > 0)
             {
                 foreach (TreeViewItem item in items1)
                 {
@@ -321,7 +306,7 @@ namespace EDID_Comparison_Tool_For_WPF
             {
                 if (collection[i] == null) { continue; }
                 TreeViewItem item = collection[i];
-                if(item != null)
+                if (item != null)
                 {
                     //如果在双向绑定集合中出现，说明有匹配项
                     if (VariablesUtils.VariablesUtils.biMap.Forward.ContainsKey(item))
@@ -347,7 +332,8 @@ namespace EDID_Comparison_Tool_For_WPF
                             }
                             int leftLines = CountLines(leftText);
                             int rightLines = CountLines(rightText);
-                            if (leftLines != rightLines) {
+                            if (leftLines != rightLines)
+                            {
                                 item.Background = Brushes.LightBlue;
                                 rightItem.Background = Brushes.LightBlue;
                                 collection.Remove(item);
@@ -356,11 +342,11 @@ namespace EDID_Comparison_Tool_For_WPF
                                 continue;
                             }
                             Differ differ = new Differ();
-                            DiffResult diffresult = differ.CreateCharacterDiffs(leftText, rightText,true);
-                            if(diffresult?.DiffBlocks?.Count > 0)
+                            DiffResult diffresult = differ.CreateCharacterDiffs(leftText, rightText, true);
+                            if (diffresult?.DiffBlocks?.Count > 0)
                             {
-                                item.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32)); 
-                                rightItem.Background = new SolidColorBrush(Color.FromArgb(64,216, 32, 32)); 
+                                item.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32));
+                                rightItem.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32));
                                 collection.Remove(item);
                                 collection.Remove(rightItem);
                                 i--;
