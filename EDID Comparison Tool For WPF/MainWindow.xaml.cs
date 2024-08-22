@@ -23,6 +23,7 @@ using BidirectionalMap;
 using Avalonia.Media.Imaging;
 using static System.Net.Mime.MediaTypeNames;
 using System.Collections.ObjectModel;
+using System.Collections;
 
 namespace EDID_Comparison_Tool_For_WPF
 {
@@ -81,7 +82,7 @@ namespace EDID_Comparison_Tool_For_WPF
                 return;
             }
             TreeUtils.TreeItemMatching(leftTree, rightTree);
-            transFolderNameColor();
+            this.transFolderNameColor();
 
 
             textblock.Text = "就绪";
@@ -274,9 +275,10 @@ namespace EDID_Comparison_Tool_For_WPF
             {
                 return;
             }
-            foreach (object item1 in collection)
+            for (int i = collection.Count - 1; i >= 0; i--)
             {
-                TreeViewItem item = item1 as TreeViewItem;
+                if (collection[i] == null) { continue; }
+                TreeViewItem item = collection[i];
                 if(item != null)
                 {
                     //如果在双向绑定集合中出现，说明有匹配项
@@ -314,46 +316,56 @@ namespace EDID_Comparison_Tool_For_WPF
                             DiffResult diffresult = differ.CreateCharacterDiffs(leftText, rightText,true);
                             if(diffresult?.DiffBlocks?.Count > 0)
                             {
-                                item.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32)); ;
-                                rightItem.Background = new SolidColorBrush(Color.FromArgb(64,216, 32, 32)); ;
+                                item.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32)); 
+                                rightItem.Background = new SolidColorBrush(Color.FromArgb(64,216, 32, 32)); 
+                                collection.Remove(item);
+                                collection.Remove(rightItem);
                             }
                         }
                     }
                     else if (VariablesUtils.VariablesUtils.biMap.Reverse.ContainsKey(item))
                     {
                         TreeViewItem leftItem = VariablesUtils.VariablesUtils.biMap.Reverse[item];
-                        string rightText = ProcessText(
-                            File.ReadAllText(item.Tag + ""))
-                        .TrimEnd();
-                        string leftText = "";
+                        string leftText = null;
                         if (leftItem != null)
                         {
-                            string leftPath = leftItem.Tag + "";
-                            if (leftPath != null && !Directory.Exists(leftPath))
+                            leftText = ProcessText(
+                            RemoveLInesAsKeyword(RemoveLinesAfterKeyword(
+                                File.ReadAllText(leftItem.Tag + "")
+                                , "Start Tag")
+                            , "Reader EDID(Hex):"))
+                            .TrimEnd();
+                        }
+                        string rightText = "";
+                        if (item != null)
+                        {
+                            string rightPath = item.Tag + "";
+                            if (rightPath != null && !Directory.Exists(rightPath))
                             {
-                                leftText = ProcessText(
-                        RemoveLInesAsKeyword(RemoveLinesAfterKeyword(
-                            File.ReadAllText(item.Tag + "")
-                            , "Start Tag")
-                        , "Reader EDID(Hex):"))
-                        .TrimEnd();
+                                rightText = ProcessText(File.ReadAllText(rightPath)).TrimEnd();
+                            }
+                            else if (System.IO.Path.GetExtension(((item.Items[0] as TreeViewItem).Header as string)).Equals(".dat"))
+                            {
+                                rightText = ProcessText(File.ReadAllText(rightPath + "\\" + ((item.Items[0] as TreeViewItem).Header as string))).TrimEnd();
                             }
                             int leftLines = CountLines(leftText);
                             int rightLines = CountLines(rightText);
                             if (leftLines != rightLines)
                             {
                                 item.Background = Brushes.LightBlue;
-                                leftItem.Background = Brushes.LightBlue;
-                                collection.Remove(item);
+                                item.Background = Brushes.LightBlue;
                                 collection.Remove(leftItem);
+                                collection.Remove(item);
                                 break;
                             }
                             Differ differ = new Differ();
                             DiffResult diffresult = differ.CreateCharacterDiffs(leftText, rightText, true);
                             if (diffresult?.DiffBlocks?.Count > 0)
                             {
-                                item.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32)); ;
-                                leftItem.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32)); ;
+                                leftItem.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32));
+                                item.Background = new SolidColorBrush(Color.FromArgb(64, 216, 32, 32));
+                                collection.Remove(leftItem);
+                                collection.Remove(item);
                             }
                         }
                     }
