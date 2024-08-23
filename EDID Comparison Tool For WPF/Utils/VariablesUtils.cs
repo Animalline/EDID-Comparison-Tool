@@ -10,8 +10,6 @@ namespace EDID_Comparison_Tool_For_WPF.VariablesUtils
 
         public static bool isFirstSelect = false;
 
-        public static Collection<TreeView> transYellowColorTree = new Collection<TreeView>();
-
-        public static Collection<TreeView> transRedColorTree = new Collection<TreeView>();
+        public static bool isCompare = false;
     }
 }

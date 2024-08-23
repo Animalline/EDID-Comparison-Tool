@@ -8,6 +8,11 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using EDID_Comparison_Tool_For_WPF.Entities;
+using EDID_Comparison_Tool_For_WPF.ConstantUtils;
+using Newtonsoft.Json;
+using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace EDID_Comparison_Tool_For_WPF
 {
@@ -33,6 +38,7 @@ namespace EDID_Comparison_Tool_For_WPF
             else
             {
                 leftTree = TreeUtils.AddTreeNode(leftTree, path, ".txt");
+                reSetV();
                 textblock.Text = path;
             }
         }
@@ -49,6 +55,7 @@ namespace EDID_Comparison_Tool_For_WPF
             else
             {
                 rightTree = TreeUtils.AddTreeNode(rightTree, path, ".dat");
+                reSetV();
                 textblock.Text = path;
             }
         }
@@ -65,6 +72,7 @@ namespace EDID_Comparison_Tool_For_WPF
                 System.Windows.Forms.MessageBox.Show("未选择原始文件");
                 return;
             }
+            VariablesUtils.VariablesUtils.isCompare = true;
             TreeUtils.TreeItemMatching(leftTree, rightTree);
             this.transFolderNameColor();
 
@@ -118,6 +126,19 @@ namespace EDID_Comparison_Tool_For_WPF
                             rightItem.IsSelected = true;
                         }
                     }
+                }
+                else if(VariablesUtils.VariablesUtils.isCompare == false)
+                {
+                    TreeViewItem leftItem = e.NewValue as TreeViewItem;
+                    diffView.OldText =
+                        ProcessText(
+                        RemoveLInesAsKeyword(RemoveLinesAfterKeyword(
+                            File.ReadAllText(leftItem.Tag + "")
+                            , "Start Tag")
+                        , "Reader EDID(Hex):"))
+                        .TrimEnd();
+
+                    diffView.OldTextHeader = leftItem.Header + "";
                 }
             }
         }
@@ -191,6 +212,21 @@ namespace EDID_Comparison_Tool_For_WPF
                         {
                             leftItem.IsSelected = true;
                         }
+                    }
+                }
+                else if(VariablesUtils.VariablesUtils.isCompare == false)
+                {
+                    TreeViewItem rightItem = e.NewValue as TreeViewItem;
+                    string rightPath = rightItem.Tag + "";
+                    if (rightPath != null && !Directory.Exists(rightPath))
+                    {
+                        diffView.NewTextHeader = rightItem.Header + "";
+                        diffView.NewText = ProcessText(File.ReadAllText(rightPath)).TrimEnd();
+                    }
+                    else if (System.IO.Path.GetExtension(((rightItem.Items[0] as TreeViewItem).Header as string)).Equals(".dat"))
+                    {
+                        diffView.NewTextHeader = rightItem.Header + "";
+                        diffView.NewText = ProcessText(File.ReadAllText(rightPath + "\\" + ((rightItem.Items[0] as TreeViewItem).Header as string))).TrimEnd();
                     }
                 }
             }
@@ -420,6 +456,85 @@ namespace EDID_Comparison_Tool_For_WPF
 
             // 返回行数
             return lines.Length;
+        }
+
+        private void cancelComparisonButton_Click(object sender, RoutedEventArgs e)
+        {
+            reSetV();
+        }
+        private void reSetV()
+        {
+            VariablesUtils.VariablesUtils.isCompare = false;
+            VariablesUtils.VariablesUtils.biMap = new BiMap<TreeViewItem, TreeViewItem>();
+        }
+
+        private void openCompare_Click(object sender, RoutedEventArgs e)
+        {
+            TreeViewItem leftItem = leftTree.SelectedItem as TreeViewItem;
+            TreeViewItem rightItem = rightTree.SelectedItem as TreeViewItem;
+            if (leftItem != null && rightItem != null)
+            {
+                if(leftItem.Header!=null && !leftItem.Header.Equals("") && rightItem.Header != null && !rightItem.Header.Equals(""))
+                {
+                    string leftPath = leftItem.Tag + "";
+                    string rightPath = rightItem.Tag + "";
+                    if (rightPath != null && !Directory.Exists(rightPath))
+                    {
+                    }
+                    else if (System.IO.Path.GetExtension(((rightItem.Items[0] as TreeViewItem).Header as string)).Equals(".dat"))
+                    {
+                        rightPath = rightPath + "\\" + ((rightItem.Items[0] as TreeViewItem).Header as string);
+                    }
+                    //调用打开beyond compare
+                    Config config = null;
+
+                    // 检查配置文件是否存在
+                    if (File.Exists(ConstantUtils.ConstantUtils.configPath))
+                    {
+                        // 读取配置文件
+                        string json = File.ReadAllText(ConstantUtils.ConstantUtils.configPath);
+                        config = JsonConvert.DeserializeObject<Config>(json);
+                    }
+                    else
+                    {
+                        // 如果文件不存在，则创建一个新的配置
+                        config = new Config();
+                        File.WriteAllText(ConstantUtils.ConstantUtils.configPath, JsonConvert.SerializeObject(config, Formatting.Indented));
+                    }
+                    // 如果路径为空，则让用户选择
+                    if (string.IsNullOrEmpty(config.BeyondComparePath))
+                    {
+                        OpenFileDialog openFileDialog = new OpenFileDialog
+                        {
+                            Filter = "Executable Files (*.exe)|*.exe",
+                            Title = "选择 Beyond Compare"
+                        };
+
+                        if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                        {
+                            config.BeyondComparePath = openFileDialog.FileName;
+
+                            // 保存新的配置到文件
+                            File.WriteAllText(ConstantUtils.ConstantUtils.configPath, JsonConvert.SerializeObject(config, Formatting.Indented));
+                        }
+                    }
+                    ProcessStartInfo processStartInfo = new ProcessStartInfo
+                    {
+                        FileName = config.BeyondComparePath,
+                        Arguments = $"\"{leftPath}\" \"{rightPath}\"",
+                        UseShellExecute = true,  // 需设置 UseShellExecute 为 true 以使用系统 shell 启动
+                        CreateNoWindow = false
+                    };
+                    try
+                    {
+                        Process.Start(processStartInfo);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.Forms.MessageBox.Show($"启动 Beyond Compare 时发生错误: {ex.Message}");
+                    }
+                }
+            }
         }
     }
 }

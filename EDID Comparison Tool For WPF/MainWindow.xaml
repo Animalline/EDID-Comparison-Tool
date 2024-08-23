@@ -41,6 +41,15 @@
                                    x:Name="comparisonButton"
                                    Width="100"
                                    Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/fileVs.png" Click="comparisonButton_Click" />
+                    <Fluent:Button Header="取消比较" 
+                                   x:Name="cancelComparisonButton"
+                                   Width="100"
+                                   Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/cancelVs.png" Click="cancelComparisonButton_Click"/>
+                    <Fluent:Button Header="从Compare比较" 
+                                   x:Name="openCompare"
+                                   Width="100"
+                                   Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/open_compare.png" Click="openCompare_Click"/>
+                    
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
             <Fluent:RibbonTabItem/>
