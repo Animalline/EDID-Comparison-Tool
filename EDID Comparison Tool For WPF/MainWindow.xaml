@@ -49,11 +49,12 @@
                                    x:Name="openCompare"
                                    Width="100"
                                    Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/open_compare.png" Click="openCompare_Click"/>
-                    
+                    <Fluent:Button Header="设置Compare路径" 
+                                   x:Name="setting"
+                                   Width="100"
+                                   Icon="pack://application:,,,/EDID Comparison Tool For WPF;component/images/setting.png" />
                 </Fluent:RibbonGroupBox>
             </Fluent:RibbonTabItem>
-            <Fluent:RibbonTabItem/>
-
         </Fluent:Ribbon>
         <Grid Width="Auto" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  DockPanel.Dock="Left">
             <Grid.RowDefinitions>
